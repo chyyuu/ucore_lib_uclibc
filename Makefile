@@ -30,7 +30,7 @@ rootfs:
 .PHONY: clean tests FORCE
 FORCE:
 
-USER_APPS := malloc/malloc string/tst-strlen
+USER_APPS ?= malloc/malloc string/tst-strlen
 USER_BINS := $(addprefix rootfs/, $(notdir $(USER_APPS)))
 
 tests: rootfs $(USER_BINS)
