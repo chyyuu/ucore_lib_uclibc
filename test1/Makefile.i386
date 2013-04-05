@@ -1,0 +1,34 @@
+CROSS_COMPILE ?=
+CC := $(CROSS_COMPILE)gcc
+LD := $(CROSS_COMPILE)ld
+AR := $(CROSS_COMPILE)ar
+OBJCOPY := $(CROSS_COMPILE)objcopy
+STRIP := $(CROSS_COMPILE)strip
+TARGET_CC := $(CROSS_COMPILE)gcc
+
+LIB_DIR := ../install_i386
+CFLAGS += -fno-builtin -nostdlib -fno-stack-protector -nostartfiles -m32
+#GCCSYSTEM_DIR :=/opt/FriendlyARM/toolschain/4.4.3/lib/gcc/arm-none-linux-gnueabi/4.4.3
+#CFLAGS += -isystem $(GCCSYSTEM_DIR)/include
+#CFLAGS += -I$(GCCSYSTEM_DIR)/include-fixed
+CFLAGS += -I$(LIB_DIR)/usr/include
+#CFLAGS += -mcpu=cortex-a9
+CFLAGS += -I../linux_header_i386_26/include 
+#CFLAGS += -msoft-float 
+LIBGCC=$(shell $(CC) -m32 --print-file-name libgcc.a)
+
+all: test1
+
+#	$(STRIP) $@	
+test1: test1.c
+	$(CC) $(CFLAGS) -I$(LIB_DIR)/include -g  -c $<
+	$(LD) -m elf_i386 -static -o $@ -L$(LIB_DIR)/usr/lib -L$(LIB_DIR)/lib $(LIB_DIR)/usr/lib/crt1.o $(LIB_DIR)/usr/lib/crti.o test1.o -lpthread -lm -lrt -lc $(LIBGCC)  $(LIB_DIR)/usr/lib/crtn.o
+
+test_s: test1
+	$(STRIP) -o test_s $^
+
+.PHONY: strip clean
+strip: test_s
+
+clean:
+	rm -rf test1 test_s *.o
